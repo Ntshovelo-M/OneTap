@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Brand Colors (Premium Professional Crimson-Red & Deep Accents) -->
+    <color name="ss_red">#E11D48</color> <!-- Modern Premium Crimson Red -->
+    <color name="ss_red_dark">#BE123C</color> <!-- Darker sophisticated red tone -->
+    <color name="ss_red_light">#1AE11D48</color> <!-- Subtle Translucent Red highlight -->
+
+    <!-- Background & Surface (Light Mode - Slate Premium Palette) -->
+    <color name="ss_bg">#F8FAFC</color> <!-- Ultra-clean Slate Greyish Background -->
+    <color name="ss_card">#FFFFFF</color> <!-- Pure White for crisp cards -->
+    <color name="ss_border">#E2E8F0</color> <!-- Subtle modern border color -->
+
+    <!-- Text Colors (Light Mode - Professional Slate Contrasts) -->
+    <color name="ss_text_primary">#0F172A</color> <!-- Deep Slate Primary Text -->
+    <color name="ss_text_secondary">#334155</color> <!-- Muted Slate Secondary Text -->
+    <color name="ss_text_muted">#64748B</color> <!-- Gentle Slate Hint text -->
+
+    <!-- Functional Colors -->
+    <color name="ss_green">#10B981</color> <!-- Clean emerald green -->
+    <color name="ss_amber">#F59E0B</color> <!-- Modern amber orange -->
+    <color name="ss_blue">#3B82F6</color> <!-- Crisp royal blue -->
+
+    <color name="primary">#E11D48</color>
+    <color name="ss_white">#FFFFFF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Compatibility aliases for legacy layouts -->
+    <color name="background">@color/ss_bg</color>
+    <color name="text_primary">@color/ss_text_primary</color>
+    <color name="text_secondary">@color/ss_text_secondary</color>
+    <color name="text_hint">@color/ss_text_muted</color>
+    <color name="input_stroke_focused">@color/ss_red</color>
+    <color name="input_stroke_default">@color/ss_border</color>
+</resources>

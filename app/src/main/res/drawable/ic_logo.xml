@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="90dp" android:height="90dp" android:viewportWidth="90" android:viewportHeight="90">
+    <!--  Background circle  -->
+    <path android:fillColor="#CC0000" android:pathData="M45,0 C69.85,0 90,20.15 90,45 C90,69.85 69.85,90 45,90 C20.15,90 0,69.85 0,45 C0,20.15 20.15,0 45,0Z"/>
+    <!--  Person icon (head)  -->
+    <path android:fillColor="#FFFFFF" android:pathData="M45,22 C49.97,22 54,26.03 54,31 C54,35.97 49.97,40 45,40 C40.03,40 36,35.97 36,31 C36,26.03 40.03,22 45,22Z"/>
+    <!--  Person icon (body)  -->
+    <path android:fillColor="#FFFFFF" android:pathData="M62,62 C62,51.51 54.49,43 45,43 C35.51,43 28,51.51 28,62 L28,68 L62,68 L62,62Z"/>
+    <!--  Accent dot  -->
+    <path android:fillColor="#111111" android:pathData="M67,52 C69.76,52 72,54.24 72,57 C72,59.76 69.76,62 67,62 C64.24,62 62,59.76 62,57 C62,54.24 64.24,52 67,52Z"/>
+</vector>

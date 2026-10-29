@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "531199721908",
+    "firebase_url": "https://onetaprealhelp-ab232-default-rtdb.firebaseio.com",
+    "project_id": "onetaprealhelp-ab232",
+    "storage_bucket": "onetaprealhelp-ab232.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:531199721908:android:ddd276990f0608e9a572e1",
+        "android_client_info": {
+          "package_name": "com.habitu.onetaprealhelp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDcVYYJ8rWhtF00HBJLwIRgNLNvVVA6X_A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

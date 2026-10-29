@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SafeStep — Admin Authorization</title>
+    <style>
+        body { background-color: #0d0f18; color: white; font-family: 'Segoe UI', Arial; text-align: center; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; }
+        .login-box { background: #151824; padding: 50px; border-radius: 24px; box-shadow: 0 10px 40px rgba(0,0,0,0.5); border: 1px solid #252a3a; width: 400px; }
+        h2 { color: #1e88e5; margin-bottom: 30px; letter-spacing: 1px; }
+        input { padding: 15px; width: 100%; border-radius: 10px; border: 1px solid #252a3a; margin-bottom: 20px; background: #0d0f18; color: white; box-sizing: border-box; text-align: center; font-size: 16px; }
+        button { padding: 15px; width: 100%; background: #1e88e5; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        button:hover { background: #2196f3; transform: translateY(-2px); }
+        .back-link { margin-top: 20px; display: block; color: #7a8099; text-decoration: none; font-size: 14px; }
+    </style>
+</head>
+<body>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+<div class="login-box">
+    <h2>ADMIN PORTAL</h2>
+    <p style="color:#7a8099; font-size: 13px; margin-bottom: 25px;">Heads of Security Authorization Only</p>
+
+    <input type="email" id="email" placeholder="ADMIN EMAIL"><br>
+    <input type="password" id="pass" placeholder="PASSWORD"><br>
+    <button id="loginBtn" onclick="adminLogin()">SECURE LOGIN</button>
+
+    <a href="index.html" class="back-link">← Return to Officer Portal</a>
+</div>
+
+<script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyDcVYYJ8rWhtF00HBJLwIRgNLNvVVA6X_A",
+        authDomain: "onetaprealhelp-ab232.firebaseapp.com",
+        databaseURL: "https://onetaprealhelp-ab232-default-rtdb.firebaseio.com",
+        projectId: "onetaprealhelp-ab232",
+        storageBucket: "onetaprealhelp-ab232.appspot.com",
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    function adminLogin() {
+        const email = document.getElementById("email").value.toLowerCase();
+        const pass = document.getElementById("pass").value;
+        const btn = document.getElementById("loginBtn");
+
+        const admins = {
+            "mbatha.ump@safestep.edu": { name: "Mr. Mbatha", unit: "UMP", pass: "admin123" },
+            "sk.luhambo@safestep.edu": { name: "Mr. SK", unit: "Luhambo", pass: "admin456" }
+        };
+
+        if (admins[email] && admins[email].pass === pass) {
+            btn.disabled = true;
+            btn.textContent = "AUTHORIZING...";
+
+            firebase.auth().signInAnonymously().then(() => {
+                sessionStorage.setItem("adminAuth", "true");
+                sessionStorage.setItem("adminName", admins[email].name);
+                sessionStorage.setItem("adminUnit", admins[email].unit);
+                window.location.href = "admin_dashboard.html";
+            }).catch(err => {
+                btn.disabled = false;
+                btn.textContent = "SECURE LOGIN";
+                alert("Auth Error: " + err.message);
+            });
+        } else {
+            alert("Invalid Admin Credentials!");
+        }
+    }
+</script>
+</body>
+</html>

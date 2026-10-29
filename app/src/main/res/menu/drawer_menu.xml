@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home"
+            android:title="Home" />
+        <item
+            android:id="@+id/nav_dash"
+            android:icon="@drawable/ic_drawer_dashboard"
+            android:title="My Dashboard" />
+        <item
+            android:id="@+id/nav_feedback"
+            android:icon="@drawable/ic_drawer_feedback"
+            android:title="Feedback &amp; Support" />
+        <item
+            android:id="@+id/nav_broadcasts"
+            android:title="Campus Alerts"
+            android:icon="@drawable/ic_drawer_bell" />
+        <item
+            android:id="@+id/nav_about"
+            android:icon="@drawable/ic_drawer_info"
+            android:title="About OneTap" />
+    </group>
+
+    <item android:title="App Settings">
+        <menu>
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_drawer_settings"
+                android:title="Settings" />
+        </menu>
+    </item>
+
+</menu>

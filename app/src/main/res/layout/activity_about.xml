@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/ss_bg">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:background="@color/ss_card"
+            android:padding="10dp"
+            android:src="@drawable/ic_menu"
+            app:tint="@color/ss_red"
+            android:rotation="90"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="About OneTap"
+            android:textColor="@color/ss_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/ss_border" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:text="OneTap Real Help connects you to campus security in one tap. Here's what every feature does and when to use it."
+                android:textColor="@color/ss_text_secondary" android:textSize="13sp"
+                android:layout_marginBottom="16dp" />
+
+            <!-- SOS -->
+            <com.google.android.material.card.MaterialCardView style="@style/AboutCard">
+                <LinearLayout style="@style/AboutCardInner">
+                    <TextView style="@style/AboutTitle" android:text="🆘 SOS Button" />
+                    <TextView style="@style/AboutBody"
+                        android:text="Press and hold the SOS button on the Home screen to send an emergency alert with your live location and battery level to campus security. Choose how urgent it is right after - security sees this on their dashboard immediately." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Walk with me -->
+            <com.google.android.material.card.MaterialCardView style="@style/AboutCard">
+                <LinearLayout style="@style/AboutCardInner">
+                    <TextView style="@style/AboutTitle" android:text="🚶 Walk with Me" />
+                    <TextView style="@style/AboutBody"
+                        android:text="Starting a walk sets a countdown timer for your trip. If you don't check in as safe before it ends, OneTap automatically sends a real SOS to your trusted contacts. Your destination note stays private on your phone and clears once the walk ends." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Trusted contacts -->
+            <com.google.android.material.card.MaterialCardView style="@style/AboutCard">
+                <LinearLayout style="@style/AboutCardInner">
+                    <TextView style="@style/AboutTitle" android:text="👥 Trusted Contacts" />
+                    <TextView style="@style/AboutBody"
+                        android:text="Add up to 5 people who should be SMS'd automatically whenever you trigger an SOS or a Walk with Me timeout. Manage them from the menu at any time." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Control Centre -->
+            <com.google.android.material.card.MaterialCardView style="@style/AboutCard">
+                <LinearLayout style="@style/AboutCardInner">
+                    <TextView style="@style/AboutTitle" android:text="🎛️ Control Centre" />
+                    <TextView style="@style/AboutBody"
+                        android:text="Manage the permissions OneTap needs (microphone, location, notifications) and set a Safety Phrase - a secret word that, when spoken while the app is open, triggers an automatic SOS." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Chat -->
+            <com.google.android.material.card.MaterialCardView style="@style/AboutCard">
+                <LinearLayout style="@style/AboutCardInner">
+                    <TextView style="@style/AboutTitle" android:text="💬 Chat with Security" />
+                    <TextView style="@style/AboutBody"
+                        android:text="Once security responds to your alert, tap Reply to open a direct chat with them so you can share more details or updates while help is on the way." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- My Dashboard -->
+            <com.google.android.material.card.MaterialCardView style="@style/AboutCard">
+                <LinearLayout style="@style/AboutCardInner">
+                    <TextView style="@style/AboutTitle" android:text="🧾 My Dashboard" />
+                    <TextView style="@style/AboutBody"
+                        android:text="Fill in your emergency profile (blood type, allergies, emergency contact) so security has the right information the moment they need it during a real emergency." />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

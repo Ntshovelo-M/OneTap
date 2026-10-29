@@ -1,0 +1,53 @@
+﻿Index: .idea/deploymentTargetSelector.xml
+===================================================================
+diff --git a/.idea/deploymentTargetSelector.xml b/.idea/deploymentTargetSelector.xml
+deleted file mode 100644
+--- a/.idea/deploymentTargetSelector.xml	(revision 6ed00c6e08640f2c3cdb862c77445bb2b00105b0)
++++ /dev/null	(revision 6ed00c6e08640f2c3cdb862c77445bb2b00105b0)
+@@ -1,11 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<project version="4">
+-  <component name="deploymentTargetSelector">
+-    <selectionStates>
+-      <SelectionState runConfigName="app">
+-        <option name="selectionMode" value="DROPDOWN" />
+-        <DialogSelection />
+-      </SelectionState>
+-    </selectionStates>
+-  </component>
+-</project>
+\ No newline at end of file
+Index: local.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>## This file must *NOT* be checked into Version Control Systems,\n# as it contains information specific to your local configuration.\n#\n# Location of the SDK. This is only used by Gradle.\n# For customization when using a Version Control System, please read the\n# header note.\n#Mon Aug 03 14:22:48 SAST 2026\nsdk.dir=C\\:\\\\Users\\\\waroe\\\\AppData\\\\Local\\\\Android\\\\Sdk\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/local.properties b/local.properties
+--- a/local.properties	(revision 6ed00c6e08640f2c3cdb862c77445bb2b00105b0)
++++ b/local.properties	(date 1789914148903)
+@@ -1,8 +1,1 @@
+-## This file must *NOT* be checked into Version Control Systems,
+-# as it contains information specific to your local configuration.
+-#
+-# Location of the SDK. This is only used by Gradle.
+-# For customization when using a Version Control System, please read the
+-# header note.
+-#Mon Aug 03 14:22:48 SAST 2026
+-sdk.dir=C\:\\Users\\waroe\\AppData\\Local\\Android\\Sdk
++sdk.dir=/Users/rethabilejafta/Library/Android/sdk
+Index: .gradle/buildOutputCleanup/cache.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>#Tue Jun 09 11:20:32 SAST 2026\ngradle.version=9.4.1\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>ISO-8859-1
+===================================================================
+diff --git a/.gradle/buildOutputCleanup/cache.properties b/.gradle/buildOutputCleanup/cache.properties
+--- a/.gradle/buildOutputCleanup/cache.properties	(revision 6ed00c6e08640f2c3cdb862c77445bb2b00105b0)
++++ b/.gradle/buildOutputCleanup/cache.properties	(date 1789914237261)
+@@ -1,2 +1,2 @@
+-#Tue Jun 09 11:20:32 SAST 2026
++#Sun Sep 20 16:23:57 SAST 2026
+ gradle.version=9.4.1

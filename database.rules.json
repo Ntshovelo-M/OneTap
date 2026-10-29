@@ -1,0 +1,98 @@
+{
+  "rules": {
+    "users": {
+      "$uid": {
+        ".read": "auth != null",
+        ".write": "auth != null && $uid === auth.uid",
+        "emailVerified": { ".validate": "newData.isBoolean() && (data.exists() ? newData.val() === data.val() : newData.val() === false)" },
+        "verifiedAt": { ".validate": "data.exists() && newData.val() === data.val()" },
+        "studentNumber": { ".validate": "newData.isString() && newData.val().matches(/^[0-9]{9}$/) && (!data.exists() || data.val() === newData.val() || data.parent().child('emailVerified').val() !== true)" }
+      }
+    },
+    
+    /* ADDED THIS FOR OFFICER MANAGEMENT */
+    "officers": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      ".indexOn": ["accessCode"]
+    },
+    
+    "alerts": {
+      ".indexOn": ["timestamp", "status", "userId"],
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "locationUpdates": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "securityCheckins": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "securityTokens": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "contacts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid"
+      }
+    },
+    "contactAlerts": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid",
+        ".write": "auth != null && auth.uid === $uid",
+        ".indexOn": ["t"]
+      }
+    },
+    "chats": {
+      "$roomId": {
+        ".read": "auth != null",
+        ".write": "auth != null"
+      }
+    },
+    "suggestions": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "feedback": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "studentReports": {
+      ".read": true,
+      ".write": true
+    },
+    "schoolAlerts": {
+      ".read": true,
+      ".write": "auth != null"
+    },
+    "incidentReports": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "students": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "walks": {
+      ".read": "auth != null",
+      "$uid": {
+        ".write": "auth != null && $uid === auth.uid",
+        "track": {
+          ".indexOn": ["t"]
+        }
+      }
+    },
+    "walkEvents": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "tickets": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}

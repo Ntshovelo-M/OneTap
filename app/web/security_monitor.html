@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneTap Real Help — Security Monitor</title>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0d0f18; --surface: #151824; --card: #1c2030; --border: #252a3a;
+      --red: #e53935; --amber: #ffa000; --green: #43a047; --blue: #1e88e5;
+      --text: #e0e4f0; --muted: #7a8099;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif; overflow: hidden; }
+
+    /* ── IDLE STATE ── */
+    #idle-screen {
+      height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 40px;
+    }
+    .idle-badge { background: rgba(67,160,71,0.12); color: var(--green); font-size: 12px; font-weight: 700;
+      padding: 6px 16px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 24px; }
+    .idle-badge .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+      margin-right: 6px; animation: blink 1.2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    #idle-screen h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    #idle-screen p { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+    #idle-clock { font-size: 15px; color: var(--muted); margin-bottom: 40px; font-variant-numeric: tabular-nums; }
+    .login-btn { background: var(--blue); border: none; color: #fff; padding: 14px 36px; border-radius: 50px;
+      font-size: 14px; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-block; }
+    .login-btn:hover { opacity: 0.9; }
+
+    /* ── ALARM STATE ── */
+    #alarm-screen {
+      display: none; height: 100vh; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 40px; background: var(--red); animation: flash 1s infinite;
+    }
+    @keyframes flash { 0%,100% { background: var(--red); } 50% { background: #b71c1c; } }
+    #alarm-screen h1 { font-size: 48px; font-weight: 900; color: #fff; margin-bottom: 16px; letter-spacing: 1px; }
+    #alarm-screen .siren-icon { font-size: 72px; margin-bottom: 16px; }
+    #alarm-person { font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    #alarm-details { font-size: 15px; color: rgba(255,255,255,0.85); margin-bottom: 32px; }
+    #alarm-screen .login-btn { background: #fff; color: var(--red); }
+  </style>
+</head>
+<body>
+
+  <div id="idle-screen">
+    <div class="idle-badge"><span class="dot"></span>MONITORING — NO ACTIVE EMERGENCIES</div>
+    <h1>OneTap Security Monitor</h1>
+    <p>This screen updates automatically. Log in to respond to alerts.</p>
+    <div id="idle-clock">--:--:--</div>
+    <a class="login-btn" href="index.html">🔐 Security Login</a>
+  </div>
+
+  <div id="alarm-screen">
+    <div class="siren-icon">🚨</div>
+    <h1>SOS DETECTED!</h1>
+    <div id="alarm-person">Student needs help!</div>
+    <div id="alarm-details">—</div>
+    <a class="login-btn" href="index.html">🔐 Log In to Respond</a>
+  </div>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyDcVYYJ8rWhtF00HBJLwIRgNLNvVVA6X_A",
+    authDomain: "onetaprealhelp-ab232.firebaseapp.com",
+    databaseURL: "https://onetaprealhelp-ab232-default-rtdb.firebaseio.com",
+    projectId: "onetaprealhelp-ab232",
+    storageBucket: "onetaprealhelp-ab232.appspot.com",
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  const alarmSound = new Audio('https://www.soundjay.com/buttons/sounds/beep-01a.mp3');
+  alarmSound.loop = true;
+
+  setInterval(() => {
+    const el = document.getElementById('idle-clock');
+    if (el) el.textContent = new Date().toLocaleTimeString();
+  }, 1000);
+
+  const URGENCY_COLOR = { high: '#ffffff', medium: '#ffe082', low: '#bbdefb' };
+
+  // Read-only - this page never writes to Firebase, so it works without logging in.
+  // A real SOS should trigger this within seconds - if the newest "active" alert is more
+  // than 20 minutes old, treat it as stale test/forgotten data rather than a live emergency.
+  const STALE_CUTOFF_MS = 20 * 60 * 1000;
+
+  db.ref('alerts').orderByChild('timestamp').limitToLast(20).on('value', snap => {
+    const val = snap.val();
+    const idle = document.getElementById('idle-screen');
+    const alarm = document.getElementById('alarm-screen');
+
+    const fresh = val ? Object.values(val)
+        .filter(a => a && (a.status === 'active' || a.status === 'acknowledged'))
+        .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)) : [];
+
+    if (fresh.length > 0) {
+      const newest = fresh[0];
+      document.getElementById('alarm-person').textContent = (newest.name || 'A student') + " is in danger!";
+      document.getElementById('alarm-details').textContent =
+          `🔋 ${newest.battery != null ? newest.battery + '%' : '—'} · 📍 ${newest.address || 'Locating…'} · ${(newest.urgency||'high').toUpperCase()} urgency`;
+      idle.style.display = 'none';
+      alarm.style.display = 'flex';
+      alarmSound.play().catch(() => {}); // browsers may block autoplay until first user interaction
+    } else {
+      idle.style.display = 'flex';
+      alarm.style.display = 'none';
+      alarmSound.pause();
+      alarmSound.currentTime = 0;
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.OneTapRealHelp"
+        parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/ss_red</item>
+        <item name="colorPrimaryVariant">@color/ss_red_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="android:windowBackground">@color/ss_bg</item>
+        <item name="android:statusBarColor">@color/ss_bg</item>
+        <item name="android:navigationBarColor">@color/ss_bg</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="CircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+</resources>

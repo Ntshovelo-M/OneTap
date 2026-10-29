@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/ss_bg">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:background="@color/ss_card"
+            android:padding="10dp"
+            android:src="@drawable/ic_menu"
+            app:tint="@color/ss_red"
+            android:rotation="90"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Feedback &amp; Support"
+            android:textColor="@color/ss_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/ss_border" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <!-- Rate & Recommend -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/ss_card" app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp" app:strokeColor="@color/ss_border" app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Enjoying OneTap?" android:textColor="@color/ss_text_primary"
+                        android:textSize="15sp" android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Your rating and shares help more students stay safe."
+                        android:textColor="@color/ss_text_muted" android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:orientation="horizontal" android:layout_marginTop="14dp">
+
+                        <Button android:id="@+id/btn_rate_app"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="46dp"
+                            android:layout_marginEnd="6dp" android:text="⭐ Rate App" android:textSize="12sp"
+                            android:textAllCaps="false" android:textColor="@color/white"
+                            android:backgroundTint="@color/ss_red" app:cornerRadius="12dp" />
+
+                        <Button android:id="@+id/btn_recommend"
+                            android:layout_width="0dp" android:layout_weight="1" android:layout_height="46dp"
+                            android:layout_marginStart="6dp" android:text="📤 Recommend" android:textSize="12sp"
+                            android:textAllCaps="false" android:textColor="@color/ss_text_secondary"
+                            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                            app:strokeColor="@color/ss_border" app:cornerRadius="12dp" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Suggestions -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/ss_card" app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp" app:strokeColor="@color/ss_border" app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="Suggest an improvement" android:textColor="@color/ss_text_primary"
+                        android:textSize="15sp" android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="What should we build or fix next?"
+                        android:textColor="@color/ss_text_muted" android:textSize="12sp" />
+
+                    <EditText android:id="@+id/et_suggestion"
+                        android:layout_width="match_parent" android:layout_height="90dp"
+                        android:layout_marginTop="10dp" android:background="@drawable/bg_input_field"
+                        android:gravity="top" android:padding="12dp"
+                        android:hint="e.g. add a dark mode…" android:textColorHint="@color/ss_text_muted"
+                        android:textColor="@color/ss_text_primary" android:inputType="textMultiLine" />
+
+                    <Button android:id="@+id/btn_submit_suggestion"
+                        android:layout_width="wrap_content" android:layout_height="42dp"
+                        android:layout_marginTop="10dp" android:text="Submit suggestion" android:textSize="12sp"
+                        android:textAllCaps="false" android:textColor="@color/white"
+                        android:backgroundTint="@color/ss_red" app:cornerRadius="10dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Feedback about the service -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                app:cardBackgroundColor="@color/ss_card" app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp" app:strokeColor="@color/ss_border" app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="How was the help you received?" android:textColor="@color/ss_text_primary"
+                        android:textSize="15sp" android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Tell us about a recent SOS or check-in, if you've had one."
+                        android:textColor="@color/ss_text_muted" android:textSize="12sp" />
+
+                    <RatingBar android:id="@+id/rating_feedback"
+                        style="?android:attr/ratingBarStyleSmall"
+                        android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:numStars="5" android:stepSize="1"
+                        android:progressTint="@color/ss_red" />
+
+                    <EditText android:id="@+id/et_feedback"
+                        android:layout_width="match_parent" android:layout_height="90dp"
+                        android:layout_marginTop="10dp" android:background="@drawable/bg_input_field"
+                        android:gravity="top" android:padding="12dp"
+                        android:hint="Optional details…" android:textColorHint="@color/ss_text_muted"
+                        android:textColor="@color/ss_text_primary" android:inputType="textMultiLine" />
+
+                    <Button android:id="@+id/btn_submit_feedback"
+                        android:layout_width="wrap_content" android:layout_height="42dp"
+                        android:layout_marginTop="10dp" android:text="Submit feedback" android:textSize="12sp"
+                        android:textAllCaps="false" android:textColor="@color/white"
+                        android:backgroundTint="@color/ss_red" app:cornerRadius="10dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

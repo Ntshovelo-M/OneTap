@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/ss_bg">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp">
+
+        <ImageView
+            android:id="@+id/btn_back"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:background="@color/ss_card"
+            android:padding="10dp"
+            android:src="@drawable/ic_menu"
+            app:tint="@color/ss_red"
+            android:rotation="90"
+            android:contentDescription="Back" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Settings"
+            android:textColor="@color/ss_text_primary"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_alignParentBottom="true"
+            android:background="@color/ss_border" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="APPEARANCE"
+                android:textColor="@color/ss_red"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/ss_card"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/ss_border"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Dark Mode"
+                        android:textColor="@color/ss_text_primary"
+                        android:textSize="16sp" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/switch_dark_mode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QUICK ACCESS"
+                android:textColor="@color/ss_red"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/ss_card"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/ss_border"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:padding="8dp"
+                        android:gravity="center_vertical">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Lock Screen SOS Button"
+                                android:textColor="@color/ss_text_primary"
+                                android:textSize="16sp" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Pins a permanent SOS emergency button directly on your lock screen, notification panel, and control center for instant emergency access."
+                                android:textColor="@color/ss_text_secondary"
+                                android:textSize="13sp"
+                                android:layout_marginTop="2dp" />
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switch_lockscreen_sos"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="PERMISSIONS"
+                android:textColor="@color/ss_red"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Permissions card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/ss_card"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/ss_border"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <!-- Microphone -->
+                    <LinearLayout style="@style/CCPermissionRow">
+                        <LinearLayout style="@style/CCPermissionText">
+                            <TextView style="@style/CCPermissionTitle" android:text="Microphone" />
+                            <TextView android:id="@+id/tv_mic_status" style="@style/CCPermissionSub" android:text="Needed for the safety phrase feature" />
+                        </LinearLayout>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/sw_mic"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            app:thumbTint="@color/ss_card" app:trackTint="@color/ss_border" />
+                    </LinearLayout>
+
+                    <View style="@style/CCDivider" />
+
+                    <!-- Location -->
+                    <LinearLayout style="@style/CCPermissionRow">
+                        <LinearLayout style="@style/CCPermissionText">
+                            <TextView style="@style/CCPermissionTitle" android:text="Location" />
+                            <TextView android:id="@+id/tv_location_status" style="@style/CCPermissionSub" android:text="Needed so security can find you during an SOS" />
+                        </LinearLayout>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/sw_location"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            app:thumbTint="@color/ss_card" app:trackTint="@color/ss_border" />
+                    </LinearLayout>
+
+                    <View style="@style/CCDivider" />
+
+                    <!-- Notifications -->
+                    <LinearLayout style="@style/CCPermissionRow">
+                        <LinearLayout style="@style/CCPermissionText">
+                            <TextView style="@style/CCPermissionTitle" android:text="Notifications" />
+                            <TextView android:id="@+id/tv_notif_status" style="@style/CCPermissionSub" android:text="Needed for security responses and alerts" />
+                        </LinearLayout>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/sw_notifications"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            app:thumbTint="@color/ss_card" app:trackTint="@color/ss_border" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="SAFETY PHRASE"
+                android:textColor="@color/ss_red"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <!-- Safety phrase card -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/ss_card"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/ss_border"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Set a secret word or phrase, save it, then turn on Voice Recognition. OneTap listens in the background and sends an SOS when it hears that phrase."
+                        android:textColor="@color/ss_text_secondary"
+                        android:textSize="12sp" />
+
+                    <EditText
+                        android:id="@+id/et_safety_phrase"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/bg_input_field"
+                        android:hint="e.g. trouble, code red, help me now…"
+                        android:textColorHint="@color/ss_text_muted"
+                        android:textColor="@color/ss_text_primary"
+                        android:paddingStart="14dp"
+                        android:paddingEnd="14dp"
+                        android:inputType="text"
+                        android:maxLines="1" />
+
+                    <Button
+                        android:id="@+id/btn_save_phrase"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginTop="10dp"
+                        android:text="Save phrase"
+                        android:textSize="11sp"
+                        android:textAllCaps="false"
+                        android:textColor="@color/ss_red"
+                        app:cornerRadius="10dp"
+                        app:strokeColor="@color/ss_red" />
+
+                    <View style="@style/CCDivider" android:layout_marginTop="16dp" />
+
+                    <LinearLayout style="@style/CCPermissionRow" android:layout_marginTop="8dp">
+                        <LinearLayout style="@style/CCPermissionText">
+                            <TextView style="@style/CCPermissionTitle" android:text="Voice Recognition" />
+                            <TextView android:id="@+id/tv_voice_status" style="@style/CCPermissionSub" android:text="Listens in the background and sends SOS when it hears your phrase" />
+                        </LinearLayout>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/sw_voice_recognition"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            app:thumbTint="@color/ss_card" app:trackTint="@color/ss_border" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="A persistent notification stays on while listening (required by Android). Use a unique phrase of at least 3 characters. Listening continues after you leave this screen until you turn it off."
+                        android:textColor="@color/ss_text_muted"
+                        android:textSize="10sp" />
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="WALK WITH ME"
+                android:textColor="@color/ss_red"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/ss_card"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/ss_border"
+                app:cardElevation="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <LinearLayout style="@style/CCPermissionRow">
+                        <LinearLayout style="@style/CCPermissionText">
+                            <TextView style="@style/CCPermissionTitle" android:text="Attach one-time location" />
+                            <TextView style="@style/CCPermissionSub" android:text="Captured once when enabled, then only when you tap Refresh in the timer." />
+                        </LinearLayout>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/sw_walk_one_time_location"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            app:thumbTint="@color/ss_card" app:trackTint="@color/ss_border" />
+                    </LinearLayout>
+
+                    <View style="@style/CCDivider" />
+
+                    <LinearLayout style="@style/CCPermissionRow">
+                        <LinearLayout style="@style/CCPermissionText">
+                            <TextView style="@style/CCPermissionTitle" android:text="Show on Lock Screen" />
+                            <TextView style="@style/CCPermissionSub" android:text="Shows countdown on your lock screen and notification panel." />
+                        </LinearLayout>
+                        <androidx.appcompat.widget.SwitchCompat android:id="@+id/sw_walk_lock_screen"
+                            android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            app:thumbTint="@color/ss_card" app:trackTint="@color/ss_border" />
+                    </LinearLayout>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ABOUT"
+                android:textColor="@color/ss_red"
+                android:textSize="11sp"
+                android:letterSpacing="0.1"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="12dp" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/ss_card"
+                app:cardCornerRadius="16dp"
+                app:strokeWidth="1dp"
+                app:strokeColor="@color/ss_border"
+                app:cardElevation="0dp"
+                android:layout_marginBottom="20dp">
+
+                <LinearLayout
+                    android:id="@+id/btn_about_link"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="SafeStep Website"
+                        android:textColor="@color/ss_text_primary"
+                        android:textSize="16sp" />
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_menu"
+                        android:rotation="-90"
+                        app:tint="@color/ss_text_muted" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

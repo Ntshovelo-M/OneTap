@@ -1,0 +1,57 @@
+<resources>
+    <string name="app_name">OneTapRealHelp</string>
+    <string name="login">Login</string>
+    <string name="logging_in">Logging in&#8230;</string>
+    <string name="register">Register</string>
+    <string name="registering">Registering&#8230;</string>
+    <string name="slogan">Safety at your fingertips</string>
+
+    <!-- Register Activity -->
+    <string name="create_account">Create Account</string>
+    <string name="join_network">Join our safety network today</string>
+    <string name="cell_phone_number">Cell Phone Number</string>
+    <string name="upload_photo_optional">Upload Photo (Optional)</string>
+    <string name="registering_as">Registering as</string>
+    <string name="student">Student</string>
+    <string name="security">Security</string>
+    <string name="staff_id_badge">Staff ID / Badge Number</string>
+    <string name="department_company">Department / Company</string>
+    <string name="already_have_account">Already have an account? Login</string>
+
+    <!-- HomeActivity / SOS -->
+    <string name="location_permission_needed">Location permission needed for security tracking</string>
+    <string name="sending">Sending…</string>
+    <string name="sent">Sent</string>
+    <string name="contacting_security">Contacting security…</string>
+    <string name="alert_sent_battery">Alert sent · Battery: %1$d%%</string>
+    <string name="alert_confirmed">✅ Alert sent! Help is on the way.</string>
+    <string name="cooldown_next">Next alert in %1$ds…</string>
+    <string name="sos">SOS</string>
+    <string name="tap_for_emergency">Tap for Emergency Assistance</string>
+    <string name="map_preview_placeholder">Map Preview Placeholder</string>
+    <string name="unsafe_zones_nearby">Unsafe Zones Nearby</string>
+    <string name="welcome_placeholder">Welcome %1$s 👋</string>
+    <string name="accessibility_description">Enables the Floating SOS button and Volume Button shortcuts for emergency assistance, even on the lock screen.</string>
+    <string name="floating_sos_button">Floating SOS Button</string>
+    <string name="floating_sos_description">Visible only on the lock screen for quick access</string>
+
+    <!-- Forgot Password -->
+    <string name="forgot_password_question">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="forgot_your_password">Forgot your password?</string>
+    <string name="forgot_password_instruction">Enter your email address and we will send you a link to reset your password.</string>
+    <string name="registered_email">Registered Email</string>
+    <string name="send_reset_link">Send Reset Link</string>
+    <string name="sending_reset">Sending…</string>
+    <string name="reset_link_sent">Reset link sent to your email!</string>
+    <string name="question_mark">\?</string>
+    <string name="ticket_submitted">Ticket submitted successfully!</string>
+    <string name="description_too_short">Description must be at least 11 characters long.</string>
+    <string name="ticket_error">Error: %1$s</string>
+    <string name="describe_issue_hint">Describe the issue here…</string>
+    <string name="submit">Submit</string>
+    <string name="report_a_concern">Report a Concern</string>
+
+    <string name="chat">Chat</string>
+    <string name="avatar_description">Contact Avatar</string>
+</resources>

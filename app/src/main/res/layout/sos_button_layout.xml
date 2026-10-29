@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="48dp">
+
+    <!-- Ripple Layers -->
+    <FrameLayout
+        android:id="@+id/ripple_1"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/circle_background"
+        android:backgroundTint="@color/ss_red"
+        android:alpha="0" />
+
+    <FrameLayout
+        android:id="@+id/ripple_2"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/circle_background"
+        android:backgroundTint="@color/ss_red"
+        android:alpha="0" />
+
+    <FrameLayout
+        android:id="@+id/ripple_3"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/circle_background"
+        android:backgroundTint="@color/ss_red"
+        android:alpha="0" />
+
+    <FrameLayout
+        android:id="@+id/ripple_4"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/circle_background"
+        android:backgroundTint="@color/ss_red"
+        android:alpha="0" />
+
+    <FrameLayout
+        android:id="@+id/ripple_5"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/circle_background"
+        android:backgroundTint="@color/ss_red"
+        android:alpha="0" />
+
+    <LinearLayout
+        android:id="@+id/widget_sos_button"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/circle_background"
+        android:backgroundTint="@color/ss_red"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:elevation="10dp"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SOS"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+</RelativeLayout>

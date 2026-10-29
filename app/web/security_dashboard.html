@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OneTap Real Help — Security Dashboard v10.0</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0d0f18;
+      --surface: #151824;
+      --card:    #1c2030;
+      --border:  #252a3a;
+      --red:     #e53935;
+      --amber:   #ffa000;
+      --green:   #43a047;
+      --blue:    #1e88e5;
+      --text:    #e0e4f0;
+      --muted:   #7a8099;
+    }
+
+    html, body { height: 100%; background: var(--bg); color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; overflow: hidden; }
+
+    .shell { display: grid; grid-template-rows: 56px 1fr; height: 100vh; overflow: hidden; position: relative; }
+    .body  { display: grid; grid-template-columns: 360px 1fr; overflow: hidden; }
+
+    /* ── DRAWER TOGGLE ── */
+    /* Check-in buttons: grey = nobody on duty at that unit, red = an officer is checked in */
+    .checkin-btn { flex:1; border:none; color:#fff; font-size:10px; font-weight:700; padding:7px; border-radius:6px; cursor:pointer;
+                   background:#4a4f63; opacity:0.85; transition: background .2s, opacity .2s; }
+    .checkin-btn.on-duty { background: var(--red); opacity:1; box-shadow: 0 0 0 1px rgba(255,255,255,0.15) inset; }
+    .duty-dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; background:#4a4f63; }
+    .duty-dot.on { background: var(--red); box-shadow: 0 0 6px var(--red); }
+    .drawer-toggle-btn { background: var(--blue); color: #fff; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .drawer-toggle-btn:hover { background: #1565c0; }
+
+    /* ── SLIDE DRAWER ── */
+    .slide-drawer { position: fixed; top: 56px; right: -360px; bottom: 0; width: 360px; background: var(--surface); border-left: 1px solid var(--border); z-index: 9990; display: flex; flex-direction: column; transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -5px 0 25px rgba(0,0,0,0.5); }
+    .slide-drawer.open { right: 0; }
+    .drawer-header { padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: var(--bg); }
+    .drawer-close { cursor: pointer; color: var(--muted); font-size: 16px; font-weight: bold; }
+    .drawer-content { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+    }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .logo-badge  { background: var(--red); color: #fff; font-size: 11px; font-weight: 700;
+      letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 6px; }
+    header h1    { font-size: 15px; font-weight: 600; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+
+    .live-pill { display: flex; align-items: center; gap: 6px;
+      background: rgba(67,160,71,0.12); color: var(--green);
+      font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 20px; }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor;
+      animation: blink 1.2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .clock { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+    .logout-btn { background: var(--border); border: none; color: #fff; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 600; }
+    .logout-btn:hover { background: var(--red); }
+
+    /* ── LEFT PANEL ── */
+    .left-panel { display: flex; flex-direction: column; border-right: 1px solid var(--border); overflow: hidden; height: 100%; }
+    .panel-header { padding: 14px 16px 10px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; }
+    .panel-title  { font-size: 12px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--muted); }
+    .badge-count  { background: var(--red); color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px; }
+
+    #alert-list { padding: 8px; display: flex; flex-direction: column; gap: 12px; flex: 1; overflow-y: auto; }
+    #alert-list::-webkit-scrollbar { width: 4px; }
+    #alert-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+    .alert-card { background: var(--card); border-radius: 12px; padding: 16px;
+      border-left: 4px solid var(--red); cursor: pointer; transition: transform 0.2s, background 0.2s; position: relative; }
+    .alert-card:hover { background: #222538; transform: translateY(-2px); }
+    .alert-card.duress { border: 2px solid #ff1744; box-shadow: 0 0 14px #ff1744; animation: blink 1s infinite; }
+
+    .ac-top  { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .ac-name { font-size: 14px; font-weight: 700; color: #fff; }
+    .ac-time { font-size: 10px; color: var(--muted); }
+    .ac-status { font-size: 10px; font-weight: 800; text-transform: uppercase; color: var(--red); margin-bottom: 6px; }
+    .ac-loc  { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+    .ac-body { font-size: 12px; color: #b0b8cc; line-height: 1.4; }
+
+    .new-badge { display: inline-block; background: var(--red); color: #fff;
+      font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 4px;
+      vertical-align: middle; margin-left: 6px; animation: fadein 0.3s; }
+    @keyframes fadein { from{opacity:0;transform:scale(0.7)} to{opacity:1;transform:scale(1)} }
+
+    .stats-strip { display: grid; grid-template-columns: 1fr 1fr 1fr;
+      border-top: 1px solid var(--border); background: var(--surface); }
+    .stat-item { padding: 12px 0; text-align: center; }
+    .stat-item + .stat-item { border-left: 1px solid var(--border); }
+    .stat-num { font-size: 22px; font-weight: 800; }
+    .stat-num.red   { color: var(--red); }
+    .stat-num.amber { color: var(--amber); }
+    .stat-num.green { color: var(--green); }
+    .stat-lbl { font-size: 9px; text-transform: uppercase; letter-spacing: 0.8px;
+      color: var(--muted); margin-top: 4px; }
+
+    /* ── RIGHT PANEL ── */
+    .right-panel { display: grid; grid-template-rows: 1fr 240px; overflow: hidden; }
+
+    #map { width: 100%; height: 100%; }
+
+    .map-container { position: relative; }
+    .map-overlay { position: absolute; top: 12px; left: 12px; z-index: 500;
+      background: rgba(13,15,24,0.9); backdrop-filter: blur(8px);
+      border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; min-width: 240px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+    .map-overlay h3 { font-size: 13px; font-weight: 700; margin-bottom: 8px; color: var(--blue); border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+    .map-stat { display: flex; justify-content: space-between; font-size: 11px;
+      color: var(--muted); margin-top: 5px; }
+    .map-stat span { color: var(--text); font-weight: 600; }
+
+    .analytics-bar { display: grid; grid-template-columns: 1fr 1fr 1fr;
+      border-top: 1px solid var(--border); background: var(--surface); overflow: hidden; }
+    .chart-cell { padding: 12px 16px; overflow: hidden; }
+    .chart-cell + .chart-cell { border-left: 1px solid var(--border); }
+    .chart-title { font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; }
+
+    /* ── POPUP TOAST ── */
+    #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10001;
+      background: var(--red); color: #fff; padding: 15px 30px; border-radius: 50px;
+      font-weight: 800; font-size: 16px; box-shadow: 0 10px 40px rgba(229,57,53,0.5);
+      display: none; animation: slideDown 0.4s cubic-bezier(.22,1,.36,1); }
+    @keyframes slideDown { from{transform:translate(-50%, -100%)} to{transform:translate(-50%, 0)} }
+
+    .ac-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .ac-action-btn { flex: 1; font-size: 11px; background: var(--blue); border: none; border-radius: 6px; color: #fff; padding: 8px; cursor: pointer; font-weight: 700; }
+    .ac-action-btn.resolve { background: var(--green); }
+    .ac-action-btn.profile { background: var(--amber); }
+        /* ── INCIDENT REPORT MODAL ── */
+    #reportModal { position: fixed; inset: 0; z-index: 9997; display: none;
+      align-items: center; justify-content: center; padding: 20px; background: rgba(0,0,0,0.7); }
+    #reportModal.visible { display: flex; }
+    .report-modal-panel { width: 100%; max-width: 420px; max-height: 88vh; overflow-y: auto;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; }
+    .report-modal-title { font-size: 16px; font-weight: 700; color: var(--blue); margin-bottom: 6px; }
+    .report-modal-sub { font-size: 12px; color: var(--muted); margin-bottom: 18px; line-height: 1.5; }
+    .report-field { margin-bottom: 14px; }
+    .report-field label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 0.8px;
+      text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .report-field select, .report-field textarea {
+      width: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      color: var(--text); padding: 9px 10px; font-family: inherit; font-size: 13px; }
+    .report-field select:focus, .report-field textarea:focus { outline: none; border-color: var(--blue); }
+    .report-field textarea { min-height: 68px; resize: vertical; }
+    .report-field.invalid select, .report-field.invalid textarea { border-color: var(--red); }
+    .report-modal-actions { display: flex; gap: 10px; margin-top: 4px; }
+    .report-modal-actions button { flex: 1; min-height: 42px; border-radius: 8px; border: none; cursor: pointer; font-weight: 700; font-size: 13px; }
+    .rm-submit { background: var(--green); color: #fff; }
+    .rm-cancel { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
+
+    /* ── INCIDENT REPORTS LIST ── */
+    .reports-block { padding: 10px 12px; border-top: 1px solid var(--border); display: flex; flex-direction: column; flex: 1; overflow-y: hidden; }
+    #reportsList { flex: 1; overflow-y: auto; }
+    .reports-block-title { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.8px; margin-bottom: 8px; }
+    .report-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+      padding: 8px 10px; margin-bottom: 6px; cursor: pointer; font-size: 11px; }
+    .report-item:hover { background: #222538; }
+    .report-item-head { display: flex; justify-content: space-between; gap: 8px; }
+    .report-item-name { font-weight: 700; color: var(--text); }
+    .report-item-time { color: var(--muted); font-size: 9px; }
+    .report-item-tag { display: inline-block; margin-top: 4px; font-size: 9px; font-weight: 700;
+      text-transform: uppercase; color: var(--green); background: rgba(67,160,71,0.14); border-radius: 4px; padding: 1px 6px; }
+    .report-item-detail { display: none; margin-top: 6px; padding-top: 6px; border-top: 1px solid var(--border); color: var(--muted); line-height: 1.5; }
+    .report-item.expanded .report-item-detail { display: block; }
+    .report-item-detail b { color: var(--text); }
+
+    /* ── ALARM ── */
+    .alarm-ring { position: fixed; inset: 0; pointer-events: none; z-index: 9996;
+      border: 8px solid var(--red); display: none; }
+    .alarm-ring.flashing { animation: aflash 0.6s ease-in-out infinite; }
+    @keyframes aflash { 0%,100% { opacity: 0; } 50% { opacity: 1; } }
+    .toast-mute-btn { margin-left: 14px; background: rgba(255,255,255,0.2); border: none; color: #fff;
+      font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px; cursor: pointer; }
+    @media (prefers-reduced-motion: reduce) { .alarm-ring.flashing { animation: none !important; } }
+  </style>
+</head>
+<body>
+
+<div id="toast">🚨 NEW EMERGENCY ALERT DETECTED <button class="toast-mute-btn" onclick="muteAlarm()">🔇 Mute</button></div>
+<div id="profile-modal" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9997;display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;min-width:320px;max-width:420px;">
+    <h3 style="color:var(--blue);margin-bottom:14px;font-size:16px;">🧾 Emergency Profile</h3>
+    <div id="profile-body" style="font-size:13px;line-height:2;color:var(--text);"></div>
+    <button onclick="closeProfile()" style="margin-top:14px;width:100%;background:var(--blue);border:none;color:#fff;padding:10px;border-radius:8px;font-weight:700;cursor:pointer;">Close</button>
+  </div>
+</div>
+<div class="alarm-ring" id="alarmRing"></div>
+
+<div id="reportModal">
+  <form class="report-modal-panel" id="reportForm">
+    <div class="report-modal-title">Incident Report</div>
+    <div class="report-modal-sub">Resolving alert for <strong id="reportPersonName"></strong>. Record what happened before this alert is closed.</div>
+
+    <div class="report-field">
+      <label for="reportType">Incident type</label>
+      <select id="reportType" required>
+        <option value="Panic alert">Panic alert</option>
+        <option value="False alarm">False alarm</option>
+        <option value="Check-in expired">Check-in expired</option>
+        <option value="Medical">Medical</option>
+        <option value="Security threat">Security threat</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="report-field">
+      <label for="reportOutcome">Outcome</label>
+      <select id="reportOutcome" required>
+        <option value="Resolved — confirmed safe">Resolved — confirmed safe</option>
+        <option value="False alarm — cancelled">False alarm — cancelled</option>
+        <option value="Escalated to police/EMS">Escalated to police/EMS</option>
+        <option value="Escalated to management">Escalated to management</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="report-field" id="reportActionsField">
+      <label for="reportActions">Actions taken</label>
+      <textarea id="reportActions" placeholder="e.g. Responded on scene, confirmed with student, stood down." required></textarea>
+    </div>
+
+    <div class="report-field">
+      <label for="reportNotes">Additional notes (optional)</label>
+      <textarea id="reportNotes" placeholder="Anything else worth recording"></textarea>
+    </div>
+
+    <div class="report-modal-actions">
+      <button type="button" class="rm-cancel" id="reportCancelBtn">Cancel</button>
+      <button type="submit" class="rm-submit">Save &amp; resolve</button>
+    </div>
+  </form>
+</div>
+<div class="shell">
+
+  <header>
+    <div class="header-left">
+      <span class="logo-badge">OTH</span>
+      <h1>Security Operations Dashboard</h1>
+      <span id="officer-badge" style="background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:20px;margin-left:8px;">—</span>
+    </div>
+    <div class="header-right">
+      <div class="live-pill">
+        <div class="live-dot"></div>
+        <span>LIVE</span>
+      </div>
+      <div class="clock" id="clock">--:--:--</div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <div class="body">
+
+    <div class="left-panel">
+      <!-- Active Emergencies Area (Brought back to left-panel next to Units On Duty) -->
+      <div class="panel-header" style="background: rgba(229,57,53,0.05);">
+        <span class="panel-title">Active Emergencies</span>
+        <span class="badge-count" id="active-count">0</span>
+      </div>
+      <div id="alert-list"></div>
+
+      <div style="padding:10px 12px;border-top:1px solid var(--border);">
+        <div style="font-size:10px;font-weight:700;color:#29b6f6;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">🚶 Walking Students</div>
+        <div id="walk-list" style="display:flex;flex-direction:column;gap:6px;font-size:11px;color:var(--muted);max-height:140px;overflow:auto;">No one is walking right now</div>
+      </div>
+      <div style="padding:10px 12px;border-top:1px solid var(--border);">
+        <div style="font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">Units On Duty</div>
+        <div id="duty-list" style="display:flex;flex-direction:column;gap:4px;font-size:11px;color:var(--muted);margin-bottom:8px;">Loading…</div>
+        <div style="display:flex;gap:6px;">
+          <button id="btn-checkin-ump" class="checkin-btn" onclick="checkIn('UMP Campus Security')">UMP Check-in</button>
+          <button id="btn-checkin-luhambo" class="checkin-btn" onclick="checkIn('Luhambo Security')">Luhambo Check-in</button>
+        </div>
+      </div>
+      <!-- Campus Broadcast Section -->
+      <div style="padding:10px 12px;border-top:1px solid var(--border);background:rgba(30,136,229,0.05);">
+        <div style="font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;">📢 Campus Broadcast</div>
+        <textarea id="broadcast-input" placeholder="Type announcement for all students..." style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text);font-family:inherit;font-size:11px;resize:none;height:50px;margin-bottom:6px;outline:none;"></textarea>
+        <button onclick="publishBroadcast()" style="width:100%;background:var(--blue);border:none;color:#fff;font-size:10px;font-weight:700;padding:7px;border-radius:6px;cursor:pointer;">Publish Announcement</button>
+      </div>
+    </div>
+
+    <!-- Removed Slide-out Drawer Panel -->
+
+    <div class="right-panel" style="grid-template-rows: 1fr;">
+      <div class="map-container">
+        <div id="map"></div>
+        <div class="map-overlay">
+          <h3>Emergency Tracking</h3>
+          <div class="map-stat">Person <span id="map-name">—</span></div>
+          <div class="map-stat">Battery <span id="map-battery">—</span></div>
+          <div class="map-stat">Status <span id="map-status">—</span></div>
+          <div class="map-stat">Location <span id="map-loc">—</span></div>
+          <div class="map-stat">Update <span id="map-updated">—</span></div>
+          <div class="map-stat">Officer <span id="map-unit">—</span></div>
+          <button onclick="toggleChat()" style="margin-top:10px;width:100%;background:var(--blue);border:none;color:#fff;border-radius:8px;padding:8px;font-size:11px;font-weight:700;cursor:pointer;">💬 Chat with student</button>
+        </div>
+        <div id="chat-panel" style="display:none;position:absolute;top:0;right:0;bottom:0;width:280px;background:var(--surface);border-left:1px solid var(--border);z-index:600;flex-direction:column;">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <strong style="font-size:13px;">💬 <span id="chat-with">Student</span></strong>
+            <span onclick="closeChat()" style="cursor:pointer;color:var(--muted);">✕</span>
+          </div>
+          <div id="chat-messages" style="flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:8px;"></div>
+          <div style="padding:10px;border-top:1px solid var(--border);display:flex;gap:6px;">
+            <input id="chat-input" placeholder="Type a message…" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--text);font-size:12px;" onkeydown="if(event.key==='Enter')sendChatMessage()"/>
+            <button onclick="sendChatMessage()" style="background:var(--blue);border:none;color:#fff;border-radius:8px;padding:8px 12px;cursor:pointer;">➤</button>
+          </div>
+        </div>
+      </div>
+      <!-- Removed analytics-bar -->
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── FIREBASE ──
+  const firebaseConfig = {
+    apiKey: "AIzaSyDcVYYJ8rWhtF00HBJLwIRgNLNvVVA6X_A",
+    authDomain: "onetaprealhelp-ab232.firebaseapp.com",
+    databaseURL: "https://onetaprealhelp-ab232-default-rtdb.firebaseio.com",
+    projectId: "onetaprealhelp-ab232",
+    storageBucket: "onetaprealhelp-ab232.appspot.com",
+    // TODO: fill these in from Firebase Console -> Project settings -> General -> Your apps
+    // (Web app). Both are required for push notifications to work.
+    messagingSenderId: "531199721908",
+    appId: "1:531199721908:android:ddd276990f0608e9a572e1",
+  };
+  // ── JS ──
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  if (!localStorage.getItem("officerName")) window.location.href = "index.html";
+firebase.auth().onAuthStateChanged(user => {
+    if (!user) window.location.href = "index.html";
+});
+if ('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+function notifyOS(title, body) {
+    if ('Notification' in window && Notification.permission === 'granted') {
+        try { new Notification(title, { body }); } catch (e) {}
+    }
+}
+
+  // ── PUSH NOTIFICATIONS (so alerts still reach security when this dashboard tab isn't open) ──
+  // notifyOS() above only fires while this page is loaded in a tab. This registers a service
+  // worker + FCM token so a NEW alert can wake a notification even if the dashboard is fully
+  // closed - same idea as a Gmail push. Tapping the notification opens the login page.
+  // TODO: after filling messagingSenderId/appId above, generate a VAPID key in
+  // Firebase Console -> Project settings -> Cloud Messaging -> Web configuration, and paste it below.
+  const VAPID_KEY = "BMQCHnKYrzVlgxNSFfDGWzsDVYT78qdL5dKJtI_bXMI1xHlrwELbGWq4oLTz4Huiii8xKDjYVAXHWYMgDxgiDUQ";
+
+  function registerForPushNotifications() {
+    if (!('serviceWorker' in navigator) || !('Notification' in window)) return;
+    if (VAPID_KEY.startsWith("REPLACE_WITH")) {
+        console.warn("Push notifications not configured yet: set messagingSenderId/appId/VAPID_KEY.");
+        return;
+    }
+    navigator.serviceWorker.register('firebase-messaging-sw.js').then(registration => {
+        const messaging = firebase.messaging();
+        Notification.requestPermission().then(permission => {
+            if (permission !== 'granted') return;
+            messaging.getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: registration })
+                .then(token => {
+                    if (!token) return;
+                    db.ref('securityTokens').child(unitSlug(officerUnit)).child(token).set({
+                        officerName: officerName,
+                        unit: officerUnit,
+                        updatedAt: Date.now()
+                    });
+                })
+                .catch(err => console.error('Could not get FCM token:', err.message));
+        });
+    }).catch(err => console.error('Service worker registration failed:', err.message));
+  }
+
+  // ── OFFICER IDENTITY + UNIT CHECK-IN ──
+  const officerName = localStorage.getItem("officerName") || "Officer";
+  const officerUnit = localStorage.getItem("officerUnit") || "UMP Campus Security";
+  document.getElementById('officer-badge').textContent = officerName + " — " + officerUnit;
+
+  function unitSlug(unit) { return unit.replace(/[^a-zA-Z0-9]/g, '_'); }
+  function officerSlug(name) { return name.replace(/[^a-zA-Z0-9]/g, '_'); }
+
+  let currentCheckinRef = null;
+  function checkIn(unit) {
+    // Move check-in if they tap the other unit's button (e.g. covering for Luhambo today).
+    if (currentCheckinRef) currentCheckinRef.remove();
+    currentCheckinRef = db.ref('securityCheckins').child(unitSlug(unit)).child(officerSlug(officerName));
+    currentCheckinRef.set({ name: officerName, unit: unit, timestamp: Date.now() })
+        .catch(err => {
+            console.error('Check-in failed:', err.message);
+            document.getElementById('duty-list').innerHTML =
+                `<div style="color:var(--red);">Check-in failed: ${err.message}. Have the updated database.rules.json been published in Firebase Console?</div>`;
+        });
+    currentCheckinRef.onDisconnect().remove(); // auto-clears if they close the tab without logging out
+  }
+  // Auth needs a moment to restore on a fresh page load - wait for it before the first check-in write,
+  // or it silently fails the database rules check ("auth != null") before the session is ready.
+  firebase.auth().onAuthStateChanged(user => { if (user) { checkIn(officerUnit); registerForPushNotifications(); } });
+
+  db.ref('securityCheckins').on('value', snap => {
+    const val = snap.val() || {};
+    const list = document.getElementById('duty-list');
+    const units = [
+      { name: 'UMP Campus Security', btn: 'btn-checkin-ump' },
+      { name: 'Luhambo Security',    btn: 'btn-checkin-luhambo' }
+    ];
+    const rows = units.map(u => {
+      const officers = Object.values(val[unitSlug(u.name)] || {});
+      const onDuty = officers.length > 0;
+      document.getElementById(u.btn).classList.toggle('on-duty', onDuty);
+      const who = onDuty
+        ? officers.map(o => `<b style="color:var(--text)">${o.name}</b>`).join(', ')
+        : '<i>not on duty</i>';
+      return `<div style="${onDuty ? '' : 'opacity:0.6;'}"><span class="duty-dot ${onDuty ? 'on' : ''}"></span>${u.name} — ${who}</div>`;
+    });
+    list.innerHTML = rows.join('');
+  }, err => {
+    document.getElementById('duty-list').innerHTML =
+        `<div style="color:var(--red);">Can't load duty list: ${err.message}</div>`;
+  });
+
+  // ── STATE ──
+  const alertStore = {};
+  const alertMarkers = {};
+  let focusedKey = null;
+let chatListenerRef = null;
+
+function toggleChat() { if (!focusedKey) return; document.getElementById('chat-panel').style.display === 'flex' ? closeChat() : openChat(focusedKey); }
+function openChat(key) {
+    const a = alertStore[key]; if (!a) return;
+    focusedKey = key;
+    document.getElementById('chat-with').textContent = a.name || 'Student';
+    document.getElementById('chat-panel').style.display = 'flex';
+    if (chatListenerRef) chatListenerRef.off();
+    chatListenerRef = db.ref('alerts').child(key).child('chat');
+    chatListenerRef.on('value', snap => {
+        const msgs = Object.values(snap.val() || {}).sort((a,b) => a.timestamp - b.timestamp);
+        const box = document.getElementById('chat-messages');
+        box.innerHTML = msgs.map(m => {
+            const mine = m.senderId === 'security';
+            return `<div style="align-self:${mine?'flex-end':'flex-start'};background:${mine?'var(--blue)':'var(--card)'};color:${mine?'#fff':'var(--text)'};padding:8px 10px;border-radius:10px;max-width:85%;font-size:12px;">${m.text}</div>`;
+        }).join('');
+        box.scrollTop = box.scrollHeight;
+    });
+}
+function closeChat() {
+    document.getElementById('chat-panel').style.display = 'none';
+    if (chatListenerRef) { chatListenerRef.off(); chatListenerRef = null; }
+    focusedKey = null;
+}
+function sendChatMessage() {
+    if (!focusedKey) return;
+    const input = document.getElementById('chat-input');
+    const text = input.value.trim();
+    if (!text) return;
+    db.ref('alerts').child(focusedKey).child('chat').push({
+        senderId: 'security', senderName: 'Campus Security', text, timestamp: Date.now()
+    });
+    input.value = '';
+}
+
+  // ── UTILS ──
+  setInterval(() => {
+    document.getElementById('clock').textContent = new Date().toLocaleTimeString();
+  }, 1000);
+
+  function logout() {
+    if (currentCheckinRef) currentCheckinRef.remove();
+    if (!VAPID_KEY.startsWith("REPLACE_WITH") && firebase.messaging) {
+        firebase.messaging().getToken({ vapidKey: VAPID_KEY }).then(token => {
+            if (token) db.ref('securityTokens').child(unitSlug(officerUnit)).child(token).remove();
+        }).catch(() => {});
+    }
+    localStorage.removeItem("officerName");
+    localStorage.removeItem("officerUnit");
+    firebase.auth().signOut().finally(() => { window.location.href = "security_monitor.html"; });
+}
+
+  function timeLabel(ts) {
+    if (!ts) return 'just now';
+    const d = Date.now() - ts;
+    if (d < 60000) return 'just now';
+    if (d < 3600000) return Math.floor(d/60000) + 'm ago';
+    if (d < 86400000) return Math.floor(d/3600000) + 'h ago';
+    return new Date(ts).toLocaleDateString();
+  }
+
+  // ── ACTIONS ──
+  const URGENCY_COLOR = { high: '#e53935', medium: '#ffa000', low: '#1e88e5' };
+const urgencyColor = (a) => URGENCY_COLOR[a.urgency] || URGENCY_COLOR.high;
+
+function respond(key) {
+    db.ref('alerts').child(key).update({
+        status: 'acknowledged',
+        responseMessage: "Help is on the way!! 🛡️ stay where you are.",
+        respondingOfficer: officerName,
+        respondingUnit: officerUnit
+    }).then(() => {
+        const t = document.getElementById('toast'); t.style.display = 'block'; setTimeout(()=>t.style.display='none', 3000);
+        stopAlarm();
+    });
+}
+
+function resolve(key) {
+    db.ref('alerts').child(key).update({ status: 'resolved', resolvedTimestamp: Date.now(), responseMessage: "Issue Resolved. Stay Safe!" }).then(() => {
+        if (alertMarkers[key]) { alertMarkers[key].setMap(null); delete alertMarkers[key]; }
+        delete alertStore[key];
+        _renderUI();
+    });
+}
+
+  function openProfile(key) {
+    const a = alertStore[key]; if (!a) return;
+    const body = document.getElementById('profile-body');
+    body.innerHTML = 'Loading…';
+    document.getElementById('profile-modal').style.display = 'flex';
+
+    db.ref('users').child(a.userId).once('value', snap => {
+        const u = snap.val() || {};
+        const ep = u.emergencyProfile || {};
+        body.innerHTML = `
+          <div><b>Name:</b> ${a.name || '—'}</div>
+          <div><b>Battery:</b> ${a.battery != null ? a.battery + '%' : '—'}</div>
+          <div><b>Urgency:</b> <span style="color:${urgencyColor(a)};font-weight:700;">${(a.urgency||'high').toUpperCase()}</span></div>
+          <div><b>Location:</b> ${a.address || '—'}</div>
+          <div><b>Cell:</b> ${a.cellNumber || u.cellNumber || '—'}</div>
+          <div><b>Blood Type:</b> ${ep.bloodType || '—'}</div>
+          <div><b>Allergies:</b> ${ep.allergies || '—'}</div>
+          <div><b>Study Level:</b> ${ep.level || '—'}</div>
+          <div><b>Emergency Contact:</b> ${ep.contactName || '—'}</div>
+        `;
+    });
+}
+function closeProfile() { document.getElementById('profile-modal').style.display = 'none'; }
+  function showToast() {
+    const t = document.getElementById('toast');
+    t.style.display = 'block';
+    setTimeout(() => { t.style.display = 'none'; }, 5000);
+  }
+
+  // ── RENDERING ──
+  function _renderUI() {
+    const list = document.getElementById('alert-list');
+    const alerts = Object.values(alertStore);
+    const sorted = alerts.sort((a,b) => (b.ts||0) - (a.ts||0));
+
+    list.innerHTML = '';
+    sorted.forEach(a => {
+      if (a.status !== 'active' && a.status !== 'acknowledged') return;
+      const fresh = (Date.now() - (a.ts||0)) < 20000;
+      const card = document.createElement('div');
+      card.className = 'alert-card' + (a.duress ? ' duress' : '');
+      card.innerHTML = `
+  <div class="ac-top">
+    <span class="ac-name">
+      ${a.name}${fresh?'<span class="new-badge">NEW</span>':''}
+    </span>
+
+    <span class="ac-time">
+      ${timeLabel(a.ts)}
+    </span>
+  </div>
+
+  <div class="ac-status" style="color:${urgencyColor(a)};">
+      ${a.duress
+      ? '🆘 SILENT DISTRESS - STILL IN SERIOUS DANGER'
+      : (a.status === 'acknowledged'
+      ? '🛡️ RESPONDING'
+      : '● EMERGENCY SOS')}
+
+      — ${(a.urgency || 'high').toUpperCase()}
+  </div>
+
+  ${a.status === 'acknowledged' && a.respondingOfficer ? `
+  <div class="ac-loc" style="color:var(--blue);">
+      🛡️ ${a.respondingOfficer} — ${a.respondingUnit || ''}
+  </div>` : ''}
+
+  <div class="ac-loc">
+      📍 ${getReadableLocation(a)}
+  </div>
+  ${a.note ? `<div class="ac-loc" style="color:var(--amber);">📝 ${a.note}</div>` : ''}
+
+  <div class="ac-body">
+      <b>Battery: ${a.battery}%</b>
+  </div>
+
+  <div class="ac-actions">
+      <button class="ac-action-btn" onclick="respond('${a.key}')">
+          Respond
+      </button>
+
+      <button class="ac-action-btn resolve" onclick="openReportModal('${a.key}')">
+          Resolve
+      </button>
+
+      <button class="ac-action-btn profile" onclick="openProfile('${a.key}')">
+          Profile
+      </button>
+  </div>
+`;
+      card.addEventListener('click', (e) => { if (e.target.tagName !== 'BUTTON') focusAlert(a.key); });
+      list.appendChild(card);
+    });
+
+    // UPDATE COUNTERS
+    db.ref('alerts').once('value', snapshot => {
+        const all = Object.values(snapshot.val() || {});
+        const activeCount = all.filter(a => a.status === 'active' || a.status === 'acknowledged').length;
+        document.getElementById('active-count').textContent = activeCount;
+    });
+  }
+
+  function refreshFocusPanel(key) {
+    const a = alertStore[key];
+    if (!a) return;
+    document.getElementById('map-name').textContent = a.name;
+    document.getElementById('map-battery').textContent = a.battery + '%';
+    document.getElementById('map-status').textContent = (a.status || '').toUpperCase();
+    const hasFix = Number(a.lat) && Number(a.lng);
+    document.getElementById('map-loc').innerHTML = getReadableLocation(a);
+  }
+
+  function focusAlert(key) {
+    const a = alertStore[key];
+    if (!a) return;
+    refreshFocusPanel(key);
+    if (Number(a.lat) && Number(a.lng)) map.setView([a.lat, a.lng], 16);
+    focusedKey = key;
+    if (document.getElementById('chat-panel').style.display === 'flex') {
+        openChat(key);
+    }
+  }
+
+  // ── MAP (Leaflet + Carto) ──
+  // Carto's raster basemaps now require a free API key (5M tiles/month free - get one at
+  // https://carto.com/basemaps/apikey). Paste it below. Leave blank to fall back to plain
+  // OpenStreetMap tiles instead (works instantly, no signup, but light-themed not dark).
+  const CARTO_API_KEY = ''; // e.g. 'a1b2c3d4...'
+
+  const map = L.map('map', { zoomControl: true, attributionControl: false }).setView([-25.4742, 30.9620], 15);
+
+  const tileUrl = CARTO_API_KEY
+    ? `https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?api_key=${CARTO_API_KEY}`
+    : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+
+  L.tileLayer(tileUrl, {
+    maxZoom: 20,
+    attribution: '&copy; OpenStreetMap contributors' + (CARTO_API_KEY ? ', &copy; CARTO' : '')
+  }).addTo(map);
+
+  const sosIconFor = (color) =>
+    L.divIcon({
+      className: '',
+      html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};border:4px solid #fff;box-shadow:0 0 20px ${color};animation:blink 1s infinite"></div>`
+    });
+
+  // ── LIVE TRACKING: every student with an SOS that still needs help, plus the path they've moved along ──
+  const alertTrails = {};      // key -> { points:[[lat,lng]], line, ref }
+  let followFocused = true;
+
+  function ageLabel(ms) {
+    if (!ms) return 'unknown';
+    const s = Math.max(0, Math.round((Date.now() - ms) / 1000));
+    if (s < 60) return s + 's ago';
+    if (s < 3600) return Math.round(s / 60) + ' min ago';
+    return Math.round(s / 3600) + ' h ago';
+  }
+
+  function addTrailPoint(key, lat, lng) {
+    lat = Number(lat); lng = Number(lng);
+    if (!lat || !lng) return;
+    const t = alertTrails[key] || (alertTrails[key] = { points: [], line: null, ref: null });
+    const last = t.points[t.points.length - 1];
+    if (last && distMeters(last[0], last[1], lat, lng) < 3) return; // ignore GPS jitter
+    t.points.push([lat, lng]);
+    if (!t.line) {
+      t.line = L.polyline(t.points, { color: '#ff5252', weight: 4, opacity: 0.85, dashArray: '2 8', lineCap: 'round' }).addTo(map);
+    } else {
+      t.line.setLatLngs(t.points);
+    }
+  }
+
+  // Backfill + follow the breadcrumb trail the student's phone writes under alerts/{key}/track
+  function attachTrack(key) {
+    const t = alertTrails[key] || (alertTrails[key] = { points: [], line: null, ref: null });
+    if (t.ref) return;
+    t.ref = db.ref('alerts').child(key).child('track').orderByChild('t');
+    t.ref.on('child_added', snap => {
+      const p = snap.val();
+      if (p) addTrailPoint(key, p.lat, p.lng);
+    });
+  }
+
+  function clearTrail(key) {
+    const t = alertTrails[key];
+    if (!t) return;
+    if (t.ref) t.ref.off();
+    if (t.line) map.removeLayer(t.line);
+    delete alertTrails[key];
+  }
+
+  function refreshMarkerLabel(key) {
+    const a = alertStore[key], m = alertMarkers[key];
+    if (!a || !m) return;
+    const stale = a.locUpdatedAt && (Date.now() - a.locUpdatedAt) > 90000;
+    const state = a.status === 'acknowledged' ? '🛡️ Help on the way' : '🚨 Still needs help';
+    m.bindTooltip(a.name + (stale ? ' · last seen ' + ageLabel(a.locUpdatedAt) : ''),
+                  { permanent: true, direction: 'top', offset: [0, -16] });
+    const locHtml = getReadableLocation(a);
+    m.bindPopup(`<b>\${a.name}</b><br>\${state}<br>Battery: \${a.battery}%<br>` +
+                `Last location update: \${ageLabel(a.locUpdatedAt || a.ts)}<br>\${locHtml}` + (a.note ? `<br>📝 \${a.note}` : ''));
+  }
+  setInterval(() => Object.keys(alertMarkers).forEach(refreshMarkerLabel), 15000);
+
+  // ── AUTO-CLEANUP FOR STALE ALERTS ──
+  // Automatically move alerts to "resolved" (Stale) if no GPS heartbeat for 30 minutes
+  function cleanupStaleAlerts() {
+    const STALE_THRESHOLD = 30 * 60 * 1000; // 30 minutes
+    const now = Date.now();
+
+    Object.keys(alertStore).forEach(key => {
+      const a = alertStore[key];
+      const lastUpdate = a.locUpdatedAt || a.ts || 0;
+
+      if (a.status !== 'resolved' && (now - lastUpdate) > STALE_THRESHOLD) {
+        console.log(`Cleaning up stale alert: ${a.name}`);
+        db.ref('alerts').child(key).update({
+          status: 'resolved',
+          outcome: 'Auto-Resolved (Stale/Lost Signal)',
+          resolvedTimestamp: now,
+          responseMessage: "SOS closed due to inactivity. Please trigger again if you still need help."
+        });
+
+        // Also log to incident history for Admin oversight
+        const reportKey = 'r_stale_' + Date.now();
+        db.ref('incidentReports').child(reportKey).set({
+          key: reportKey,
+          alertKey: key,
+          personName: a.name,
+          incidentType: 'Signal Lost / Stale',
+          outcome: 'Auto-Resolved',
+          actionsTaken: 'System automatically closed alert after 30min of no GPS updates.',
+          officer: 'System Auto-Guard',
+          resolvedAt: now
+        });
+      }
+    });
+  }
+  setInterval(cleanupStaleAlerts, 60000); // Check every minute
+
+  // Map control: jump to everyone who still needs help + follow toggle
+  const trackControl = L.control({ position: 'topright' });
+  trackControl.onAdd = function () {
+    const div = L.DomUtil.create('div');
+    div.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+    div.innerHTML = `
+      <button id="btn-show-all" style="background:#e53935;color:#fff;border:none;border-radius:6px;padding:8px 10px;font-size:11px;font-weight:700;cursor:pointer;">📍 Show all SOS (0)</button>
+      <button id="btn-follow" style="background:#1c2030;color:#e0e4f0;border:1px solid #4a4f63;border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;cursor:pointer;">Follow selected: ON</button>`;
+    L.DomEvent.disableClickPropagation(div);
+    div.querySelector('#btn-show-all').onclick = showAllSos;
+    div.querySelector('#btn-follow').onclick = function () {
+      followFocused = !followFocused;
+      this.textContent = 'Follow selected: ' + (followFocused ? 'ON' : 'OFF');
+    };
+    return div;
+  };
+  trackControl.addTo(map);
+
+  function showAllSos() {
+    const pts = Object.values(alertMarkers).map(m => m.getLatLng());
+    Object.values(alertTrails).forEach(t => t.points.forEach(p => pts.push(L.latLng(p[0], p[1]))));
+    if (!pts.length) return;
+    map.fitBounds(L.latLngBounds(pts), { padding: [60, 60], maxZoom: 17 });
+  }
+  function updateShowAllLabel() {
+    const b = document.getElementById('btn-show-all');
+    if (b) b.textContent = '📍 Show all SOS (' + Object.keys(alertMarkers).length + ')';
+  }
+
+  db.ref('alerts').orderByChild('timestamp').limitToLast(100).on('value', snap => {
+    const val = snap.val(); if (val) Object.entries(val).forEach(([k, v]) => upsertAlert(k, v));
+  });
+  db.ref('alerts').on('child_changed', snap => upsertAlert(snap.key, snap.val()));
+
+  window.upsertAlert = function(key, data) {
+    const status = data.status || 'active';
+    const isActiveState = status === 'active' || status === 'acknowledged';
+    const isNew = isActiveState && !alertStore[key];
+    const wasDuress = !!(alertStore[key] && alertStore[key].duress);
+
+    if (isActiveState) {
+      alertStore[key] = { key, userId: data.userId || '', name: data.name || 'Student', status, urgency: data.urgency || 'high', lat: data.lat || 0, lng: data.lng || 0, locUpdatedAt: data.locUpdatedAt || data.timestamp || 0, note: data.note || '', duress: !!data.duress, battery: data.battery || 0, ts: data.timestamp || Date.now(), address: data.address || '', respondingOfficer: data.respondingOfficer || null, respondingUnit: data.respondingUnit || null };
+    } else {
+      delete alertStore[key]; // resolved/cancelled - don't let it linger in memory
+    }
+    _renderUI();
+
+    if (isActiveState) {
+      const color = urgencyColor(data);
+      const hasFix = Number(data.lat) && Number(data.lng);
+      if (hasFix) {
+        if (!alertMarkers[key]) {
+          alertMarkers[key] = L.marker([data.lat, data.lng], { icon: sosIconFor(color) }).addTo(map);
+        } else {
+          alertMarkers[key].setLatLng([data.lat, data.lng]);
+          alertMarkers[key].setIcon(sosIconFor(color));
+        }
+        addTrailPoint(key, data.lat, data.lng);
+        refreshMarkerLabel(key);
+      }
+      attachTrack(key);
+      updateShowAllLabel();
+
+      if (key === focusedKey) {
+        refreshFocusPanel(key);
+        if (followFocused && hasFix) map.panTo([data.lat, data.lng], { animate: true });
+      }
+
+      if (isNew) {
+        showToast();
+        notifyOS('🚨 SOS: ' + alertStore[key].name, (alertStore[key].address || 'Locating…') + ' · Battery ' + (alertStore[key].battery ?? '—') + '%');
+        focusAlert(key);
+        startAlarm();
+      }
+       if (!isNew && data.duress && !wasDuress) {
+        showToast();
+        notifyOS('🆘 SILENT DISTRESS: ' + alertStore[key].name, 'Student pretended to cancel - STILL IN SERIOUS DANGER');
+        focusAlert(key);
+        startAlarm();
+      }
+    } else {
+      // resolved / cancelled - student no longer needs help, stop tracking them
+      if (alertMarkers[key]) { map.removeLayer(alertMarkers[key]); delete alertMarkers[key]; }
+      clearTrail(key);
+      if (focusedKey === key) focusedKey = null;
+      updateShowAllLabel();
+    }
+  };
+
+
+  // ── WALK WITH ME: students whose walk timer is running move live on the map ──
+  const walkMarkers = {}, walkTrails = {}, walkData = {};
+  const WALK_COLORS = { walking:'#29b6f6', stopped:'#ffa000', stopped_other:'#7a8099' };
+
+  const walkIconFor = (color, pulse) =>
+    L.divIcon({ className:'', html:`<div style="width:20px;height:20px;border-radius:50%;background:${color};border:3px solid #fff;box-shadow:0 0 12px ${color};${pulse?'animation:blink 1s infinite':''}"></div>` });
+
+  function walkVisible(w) {
+    if (!w || !w.status) return false;
+    if (w.status === 'walking' || w.status === 'stopped') return true;
+    if (w.status === 'stopped_other') return (Date.now() - (w.endedAt || 0)) < 10 * 60 * 1000; // show the reason for 10 min
+    return false; // 'alert' is handled by the SOS marker
+  }
+
+  function walkStatusText(w) {
+    if (w.status === 'stopped') {
+      const left = Math.max(0, Math.round(((w.promptDeadline || 0) - Date.now()) / 1000));
+      return '⏸ Stopped ' + ageLabel(w.stoppedAt) + ' — waiting for answer' + (left > 0 ? ' (' + left + 's left)' : ' (no reply, SOS due)');
+    }
+    if (w.status === 'stopped_other') return 'ℹ️ Stopped: “' + (w.reason || '—') + '” — timer ended';
+    const mins = Math.max(0, Math.round(((w.endAt || 0) - Date.now()) / 60000));
+    return '🚶 Walking · ' + mins + ' min left';
+  }
+
+  function removeWalk(uid) {
+    if (walkMarkers[uid]) { map.removeLayer(walkMarkers[uid]); delete walkMarkers[uid]; }
+    if (walkTrails[uid]) { if (walkTrails[uid].line) map.removeLayer(walkTrails[uid].line); delete walkTrails[uid]; }
+  }
+
+  function addWalkPoint(uid, lat, lng) {
+    lat = Number(lat); lng = Number(lng);
+    if (!lat || !lng) return;
+    const t = walkTrails[uid] || (walkTrails[uid] = { points: [], line: null, loaded: false });
+    const last = t.points[t.points.length - 1];
+    if (last && distMeters(last[0], last[1], lat, lng) < 3) return;
+    t.points.push([lat, lng]);
+    if (!t.line) t.line = L.polyline(t.points, { color:'#29b6f6', weight:4, opacity:0.8 }).addTo(map);
+    else t.line.setLatLngs(t.points);
+  }
+
+  function upsertWalk(uid, w) {
+    const color = WALK_COLORS[w.status] || '#29b6f6';
+    const hasFix = Number(w.lat) && Number(w.lng);
+    if (hasFix) {
+      if (!walkMarkers[uid]) {
+        walkMarkers[uid] = L.marker([w.lat, w.lng], { icon: walkIconFor(color, w.status === 'stopped'), zIndexOffset: 500 }).addTo(map);
+      } else {
+        walkMarkers[uid].setLatLng([w.lat, w.lng]);
+        walkMarkers[uid].setIcon(walkIconFor(color, w.status === 'stopped'));
+      }
+      walkMarkers[uid].bindTooltip((w.name || 'Student') + (w.status === 'stopped' ? ' ⏸' : ''), { permanent:true, direction:'top', offset:[0,-12] });
+      walkMarkers[uid].bindPopup('<b>' + (w.name || 'Student') + '</b><br>' + walkStatusText(w));
+      addWalkPoint(uid, w.lat, w.lng);
+    }
+    // backfill the path they've already walked (once per student)
+    const t = walkTrails[uid] || (walkTrails[uid] = { points: [], line: null, loaded: false });
+    if (!t.loaded) {
+      t.loaded = true;
+      db.ref('walks').child(uid).child('track').orderByChild('t').once('value').then(s => {
+        const pts = []; s.forEach(c => { const p = c.val(); if (p) pts.push([p.lat, p.lng]); });
+        if (pts.length) { t.points = pts; if (!t.line) t.line = L.polyline(pts, { color:'#29b6f6', weight:4, opacity:0.8 }).addTo(map); else t.line.setLatLngs(pts); }
+      }).catch(() => {});
+    }
+  }
+
+  function renderWalkList() {
+    const el = document.getElementById('walk-list');
+    const rows = Object.entries(walkData).filter(([, w]) => walkVisible(w)).map(([uid, w]) => {
+      const color = WALK_COLORS[w.status] || '#29b6f6';
+      return `<div style="cursor:pointer;" onclick="focusWalk('${uid}')"><span class="duty-dot" style="background:${color};box-shadow:0 0 6px ${color};"></span><b style="color:var(--text)">${w.name || 'Student'}</b><br><span style="margin-left:15px;">${walkStatusText(w)}</span></div>`;
+    });
+    el.innerHTML = rows.length ? rows.join('') : 'No one is walking right now';
+  }
+  window.focusWalk = function(uid) {
+    if (walkMarkers[uid]) { map.setView(walkMarkers[uid].getLatLng(), 17); walkMarkers[uid].openPopup(); }
+  };
+
+  db.ref('walks').on('value', snap => {
+    const val = snap.val() || {};
+    Object.keys(walkData).forEach(k => delete walkData[k]);
+    Object.assign(walkData, val);
+    Object.keys(walkMarkers).forEach(uid => { if (!walkVisible(val[uid])) removeWalk(uid); });
+    Object.entries(val).forEach(([uid, w]) => { if (walkVisible(w)) upsertWalk(uid, w); });
+    renderWalkList();
+  }, err => {
+    document.getElementById('walk-list').innerHTML = `<div style="color:var(--red);">Can't load walks: ${err.message}</div>`;
+  });
+  setInterval(renderWalkList, 5000); // keeps "X s left" / "min left" fresh
+
+  // ── BUILDING COORDINATES ──
+  const BUILDINGS = [
+    { name: 'Building 7', lat: -25.434729, lng: 30.980458 },
+    { name: 'Building 6', lat: -25.435388, lng: 30.978055 },
+    { name: 'The Great Hall', lat: -25.432133, lng: 30.976081 },
+    { name: 'ICT LABS', lat: -25.435582, lng: 30.982368 },
+    { name: 'Main Gate', lat: -25.437142, lng: 30.981776 },
+    { name: 'Luhambo Res', lat: -25.447930, lng: 30.994180 },
+    { name: 'Road to Luhambo', lat: -25.443589, lng: 30.988343 },
+    { name: 'Kamagugu Shopping Centre', lat: -25.451081, lng: 30.996278 }
+  ];
+
+  function getReadableLocation(a) {
+    const lat = Number(a.lat), lng = Number(a.lng);
+    if (!lat || !lng) return a.address || 'Locating…';
+
+    let buildingPart = '';
+    for (const b of BUILDINGS) {
+      if (distMeters(lat, lng, b.lat, b.lng) < 25) {
+        buildingPart = `📍 Inside/Near ${b.name}<br>`;
+        break;
+      }
+    }
+
+    const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+    return buildingPart + `<a href="${googleMapsUrl}" target="_blank" style="color:var(--blue);text-decoration:none;font-weight:700;">${lat.toFixed(6)}, ${lng.toFixed(6)} (Open Map)</a>`;
+  }
+
+  function distMeters(lat1,lng1,lat2,lng2){
+    const R=6371000, rad=x=>x*Math.PI/180;
+    const dLat=rad(lat2-lat1), dLng=rad(lng2-lng1);
+    const h=Math.sin(dLat/2)**2+Math.cos(rad(lat1))*Math.cos(rad(lat2))*Math.sin(dLng/2)**2;
+    return 2*R*Math.asin(Math.sqrt(h));
+  }
+  // ── INCIDENT REPORTS ──
+// Removed as moved to admin dashboard
+
+let pendingResolveKey = null;
+
+function openReportModal(key) {
+  const a = alertStore[key]; if (!a) return;
+  pendingResolveKey = key;
+  document.getElementById('reportForm').reset();
+  document.getElementById('reportActionsField').classList.remove('invalid');
+  document.getElementById('reportPersonName').textContent = a.name;
+  document.getElementById('reportModal').classList.add('visible');
+}
+function closeReportModal() {
+  document.getElementById('reportModal').classList.remove('visible');
+  pendingResolveKey = null;
+}
+document.getElementById('reportCancelBtn').addEventListener('click', closeReportModal);
+document.getElementById('reportModal').addEventListener('click', (e) => {
+  if (e.target.id === 'reportModal') closeReportModal();
+});
+
+document.getElementById('reportForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  if (!pendingResolveKey) return;
+  const key = pendingResolveKey;
+  const a = alertStore[key];
+  const actionsField = document.getElementById('reportActionsField');
+  const actionsTaken = document.getElementById('reportActions').value.trim();
+  if (!actionsTaken) { actionsField.classList.add('invalid'); document.getElementById('reportActions').focus(); return; }
+  actionsField.classList.remove('invalid');
+
+  const report = {
+    key: 'r' + Date.now(),
+    alertKey: key,
+    personName: a ? a.name : 'Unknown',
+    incidentType: document.getElementById('reportType').value,
+    outcome: document.getElementById('reportOutcome').value,
+    actionsTaken,
+    notes: document.getElementById('reportNotes').value.trim(),
+    officer: officerName,
+    resolvedAt: Date.now(),
+  };
+
+  db.ref('incidentReports').child(report.key).set(report);
+
+  db.ref('alerts').child(key).update({
+    status: 'resolved', resolvedTimestamp: Date.now(), responseMessage: "Issue Resolved. Stay Safe!"
+  }).then(() => {
+    if (alertMarkers[key]) { map.removeLayer(alertMarkers[key]); delete alertMarkers[key]; }
+    delete alertStore[key];
+    _renderUI();
+    if (!Object.values(alertStore).some(x => x.status === 'active')) stopAlarm();
+  });
+
+  closeReportModal();
+});
+
+// ── ALARM / SIREN ──
+let _alarmInterval = null;
+let _alarmMuted = false;
+let _audioCtx = null;
+
+function playAlarmTone() {
+  if (_alarmMuted) return;
+  try {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (_audioCtx.state === 'suspended') _audioCtx.resume();
+
+    [[0, 440, 880], [0.9, 880, 440], [1.8, 440, 880]].forEach(([t, f0, f1]) => {
+      const o = _audioCtx.createOscillator(), g = _audioCtx.createGain();
+      o.connect(g); g.connect(_audioCtx.destination);
+      o.type = 'sawtooth';
+      o.frequency.setValueAtTime(f0, _audioCtx.currentTime + t);
+      o.frequency.linearRampToValueAtTime(f1, _audioCtx.currentTime + t + 0.82);
+      g.gain.setValueAtTime(0.35, _audioCtx.currentTime + t);
+      g.gain.setValueAtTime(0.35, _audioCtx.currentTime + t + 0.78);
+      g.gain.linearRampToValueAtTime(0, _audioCtx.currentTime + t + 0.9);
+      o.start(_audioCtx.currentTime + t);
+      o.stop(_audioCtx.currentTime + t + 0.95);
+    });
+  } catch (e) {}
+}
+
+function startAlarm() {
+  _alarmMuted = false;
+  const ring = document.getElementById('alarmRing');
+  ring.style.display = 'block';
+  ring.classList.add('flashing');
+  playAlarmTone();
+  if (_alarmInterval) clearInterval(_alarmInterval);
+  _alarmInterval = setInterval(() => { if (!_alarmMuted) playAlarmTone(); }, 3000);
+}
+
+function stopAlarm() {
+  _alarmMuted = true;
+  if (_alarmInterval) { clearInterval(_alarmInterval); _alarmInterval = null; }
+  const ring = document.getElementById('alarmRing');
+  ring.style.display = 'none';
+  ring.classList.remove('flashing');
+}
+
+function muteAlarm() { stopAlarm(); }
+
+// ── DRAWER TOGGLE FUNCTION ──
+function toggleSlideDrawer() {
+    const drawer = document.getElementById('slide-drawer');
+    drawer.classList.toggle('open');
+}
+
+   // ── BROADCAST FEATURE ──
+function publishBroadcast() {
+    const input = document.getElementById('broadcast-input');
+    const msg = input.value.trim();
+    if (!msg) return;
+
+    if (!confirm("Are you sure you want to broadcast this to all students?")) return;
+
+    db.ref('schoolAlerts').push({
+        message: msg,
+        timestamp: Date.now(),
+        sender: officerName
+    }).then(() => {
+        alert("Broadcast published successfully!");
+        input.value = '';
+    }).catch(err => {
+        alert("Failed to publish: " + err.message);
+    });
+}
+</script>
+</body>
+</html>24
